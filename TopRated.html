@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Rated Movies</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("d5e154c2fd72fc5dab6ab4440fab755f.jpg");
+            background-repeat: no-repeat;
+            background-size: cover;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 40%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .logo {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #fff;
+            text-decoration: none;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            padding: 10px;
+            width: 80%;
+            border: none;
+            border-radius: 5px;
+        }
+        .search-box button {
+            padding: 10px;
+            background-color: #ff6f61;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            cursor: pointer;
+        }
+        .movie {
+            background-color: #333;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .movie img {
+            width: 100%;
+            border-bottom: 1px solid #444;
+        }
+        .movie-info {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .movie-info h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+        .movie-info span {
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #fff;
+        }
+        .movie-info .green {
+            background-color: #28a745;
+        }
+        .movie-info .orange {
+            background-color: #ff9800;
+        }
+        .movie-info .red {
+            background-color: #f44336;
+        }
+        .overview {
+            padding: 15px;
+        }
+        .overview h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="logo">Top Rated Movies</a>
+        <form id="form" class="search-box">
+            <input type="text" id="search" placeholder="Search for a movie...">
+            <button type="submit">Search</button>
+        </form>
+        <main id="main"></main>
+    </div>
+
+    <script>
+        const API_URL = 'https://api.themoviedb.org/3/movie/popular?api_key=6ebb3f1a04ab65abc1642edabed3abd4'; 
+        const IMG_PATH = 'https://image.tmdb.org/t/p/w1280'; 
+        const SEARCH_API = 'https://api.themoviedb.org/3/search/movie?query="';
+        const keyu = '&api_key=6ebb3f1a04ab65abc1642edabed3abd4';
+
+        const form = document.getElementById('form');
+        const search = document.getElementById('search');
+        const main = document.getElementById('main');
+
+        // Fetch and display the movies
+        getMovies(API_URL);
+        async function getMovies(url){
+            const res = await fetch(url);
+            const data = await res.json(); 
+            showMovies(data.results);
+        }
+
+        // Display the movies on the page
+        function showMovies(movies) {
+            main.innerHTML = '';
+
+            movies.forEach((movie) => {
+                const { title, poster_path, vote_average, overview } = movie;
+
+                const movieEl = document.createElement('div');
+                movieEl.classList.add('movie');
+
+                movieEl.innerHTML = `
+                    <img src="${IMG_PATH + poster_path}" alt="${title}">
+                    <div class="movie-info">
+                        <h3>${title}</h3>
+                        <span class="${rate(vote_average)}">${vote_average}</span>
+                    </div>
+                    <div class="overview">
+                        <h3>Overview</h3>
+                        ${overview}
+                    </div>
+                `;
+
+                main.appendChild(movieEl);
+            });
+        }
+
+        // Function to assign a color class based on the rating
+        function rate(vote){
+            if(vote >= 8){
+                return 'green';
+            } else if(vote >= 5){
+                return 'orange';
+            } else {
+                return 'red';
+            }
+        }
+
+        // Event listener for the search form
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const searchTerm = search.value;
+
+            if(searchTerm && searchTerm !== ''){
+                getMovies(SEARCH_API + searchTerm + keyu);
+                search.value = '';
+            } else {
+                window.location.reload();
+            }
+        });
+    </script>
+</body>
+</html>
